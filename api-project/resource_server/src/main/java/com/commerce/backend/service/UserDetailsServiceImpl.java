@@ -1,6 +1,8 @@
-package com.commerce.oauth.server.model;
+package com.commerce.backend.service;
 
-import com.commerce.oauth.server.dao.UserRepository;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import com.commerce.backend.dao.UserRepository;
+import com.commerce.backend.model.User;
 
 @Service(value = "userService")
 public class UserDetailsServiceImpl implements UserDetailsService {

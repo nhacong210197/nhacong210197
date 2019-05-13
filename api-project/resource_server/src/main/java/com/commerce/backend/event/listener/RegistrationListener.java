@@ -38,14 +38,14 @@ public class RegistrationListener implements
         verificationTokenRepository.save(verificationToken);
 
         String recipientAddress = user.getEmail();
-        String subject = "Keyist Registration Confirmation";
+        String subject = "Registration Confirmation";
         String confirmationUrl = event.getAppUrl()+"/registrationConfirm?token=" + token;
         String message = "Hi ,\n\nPlease confirm your email with this link. ";
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);
         email.setSubject(subject);
-        email.setText(message + "\n\n" + confirmationUrl + "\n\n\nw/ Keyist Team");
+        email.setText(message + "\n\n" + confirmationUrl + "\n\n\nw/ project demo");
         mailSender.send(email);
     }
 }

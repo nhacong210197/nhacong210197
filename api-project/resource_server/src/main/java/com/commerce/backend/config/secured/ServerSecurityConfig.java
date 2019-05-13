@@ -1,4 +1,4 @@
-package com.commerce.oauth.server.config;
+package com.commerce.backend.config.secured;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

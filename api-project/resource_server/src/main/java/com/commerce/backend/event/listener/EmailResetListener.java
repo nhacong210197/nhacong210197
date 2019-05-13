@@ -44,14 +44,14 @@ public class EmailResetListener implements
 
 
         String recipientAddress = event.getNewEmail();
-        String subject = "Keyist Email Reset Confirmation";
+        String subject = "Email Reset Confirmation";
         String confirmationUrl = event.getAppUrl()+"/emailResetConfirm?token=" + emailResetToken.getToken();
         String message = "Hi ,\n\nPlease confirm your new e-mail with this link.";
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);
         email.setSubject(subject);
-        email.setText(message + "\n\n" + confirmationUrl + "\n\n\nw/ Keyist Team");
+        email.setText(message + "\n\n" + confirmationUrl + "\n\n\nw/ project demo");
         mailSender.send(email);
     }
 }
