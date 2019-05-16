@@ -24,22 +24,22 @@ public class OrderController extends SecuredApiController {
     }
 
     @RequestMapping(value = "/order/count", method = RequestMethod.GET)
-    public ResponseEntity getAllOrdersCount(Principal principal) {
+    public ResponseEntity<Integer> getAllOrdersCount(Principal principal) {
         Integer orderCount = orderService.getAllOrdersCount(principal);
         return new ResponseEntity<Integer>(orderCount, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/order", method = RequestMethod.GET, params = {"page", "size"})
-    public ResponseEntity getAllOrders(@RequestParam("page") Integer page, @RequestParam("size") Integer pageSize, Principal principal) {
+    public ResponseEntity<List<Order>> getAllOrders(@RequestParam("page") Integer page, @RequestParam("size") Integer pageSize, Principal principal) {
         System.out.println("In getAllOrders GET");
         List<Order> orderList = orderService.getAllOrders(principal, page, pageSize);
         return new ResponseEntity<List<Order>>(orderList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/order", method = RequestMethod.POST)
-    public ResponseEntity postOrder(@Valid @RequestBody Order order, BindingResult bindingResult, Principal principal) {
+    public ResponseEntity<Order> postOrder(@Valid @RequestBody Order order, BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Order>(HttpStatus.BAD_REQUEST);
         }
 
         Order saveOrder = orderService.postOrder(principal, order);

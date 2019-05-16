@@ -11,6 +11,8 @@ public interface UserService {
 
     /* Public */
     User register(UserDTO userDTO);
+    
+    User login(UserDTO userDTO);
 
     /* Secured */
     User getUser(Principal principal);

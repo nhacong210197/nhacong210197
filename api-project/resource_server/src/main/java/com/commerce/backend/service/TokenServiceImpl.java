@@ -45,6 +45,8 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void createEmailResetToken(Principal principal, EmailResetDTO emailResetDTO, String requestUrl) {
         User user = getUserFromPrinciple(principal);
+        System.out.println(principal.getName());
+        
         if (!passwordEncoder.matches(emailResetDTO.getPassword(), user.getPassword())
                 || !emailResetDTO.getNewEmail().equals(emailResetDTO.getNewEmailConfirm())
                 || user.getEmail().equals(emailResetDTO.getNewEmail())) {

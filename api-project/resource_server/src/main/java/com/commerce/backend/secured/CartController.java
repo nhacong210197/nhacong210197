@@ -29,7 +29,7 @@ public class CartController extends SecuredApiController {
 
 
     @RequestMapping(value = "/cart", method = RequestMethod.POST)
-    public ResponseEntity addToCart(@RequestBody String payload, Principal principal) throws IOException {
+    public ResponseEntity<Cart> addToCart(@RequestBody String payload, Principal principal) throws IOException {
         System.out.println("Add to cart");
         ObjectMapper mapper = new ObjectMapper();
         JsonNode actualObj = mapper.readTree(payload);
@@ -42,31 +42,31 @@ public class CartController extends SecuredApiController {
     }
 
     @RequestMapping(value = "/cart", method = RequestMethod.GET)
-    public ResponseEntity fetchCart(Principal principal) {
+    public ResponseEntity<Cart> fetchCart(Principal principal) {
         Cart cart = cartService.fetchCart(principal);
         return new ResponseEntity<Cart>(cart, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/cart", method = RequestMethod.DELETE, params = "id")
-    public ResponseEntity removeFromCart(@RequestParam("id") Long id, Principal principal) {
+    public ResponseEntity<Cart> removeFromCart(@RequestParam("id") Long id, Principal principal) {
         Cart cart = cartService.removeFromCart(principal, id);
         return new ResponseEntity<Cart>(cart, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/cart/confirm", method = RequestMethod.POST)
-    public ResponseEntity confirmCart(@Valid @RequestBody Cart cart, BindingResult bindingResult, Principal principal) {
+    public ResponseEntity<?> confirmCart(@Valid @RequestBody Cart cart, BindingResult bindingResult, Principal principal) {
         System.out.println("RequestBody -> " + cart.toString());
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
         }
         Boolean result = cartService.confirmCart(principal, cart);
-        return result ? new ResponseEntity(HttpStatus.OK) : new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return result ? new ResponseEntity<Object>(HttpStatus.OK) : new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/cart", method = RequestMethod.DELETE)
-    public ResponseEntity emptyCart(Principal principal) {
+    public ResponseEntity<?> emptyCart(Principal principal) {
         cartService.emptyCart(principal);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<Object>(HttpStatus.OK);
     }
 
 }

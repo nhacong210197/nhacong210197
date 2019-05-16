@@ -21,6 +21,7 @@ public class ProductServiceImpl implements ProductService {
         this.productRepository = productRepository;
     }
 
+    
     @Override
     @Cacheable(key = "#id")
     public Product findById(Long id) {

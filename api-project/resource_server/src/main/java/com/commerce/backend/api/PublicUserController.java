@@ -1,6 +1,5 @@
 package com.commerce.backend.api;
 
-
 import com.commerce.backend.dto.PasswordForgotDTO;
 import com.commerce.backend.dto.UserDTO;
 import com.commerce.backend.model.User;
@@ -21,82 +20,95 @@ import java.io.IOException;
 @RestController
 public class PublicUserController extends ApiController {
 
+	private final UserService userService;
 
-    private final UserService userService;
+	private final TokenService tokenService;
 
+	@Autowired
+	public PublicUserController(UserService userService, TokenService tokenService) {
+		this.userService = userService;
+		this.tokenService = tokenService;
+	}
 
-    private final TokenService tokenService;
+	@RequestMapping(value = "/account/registration", method = RequestMethod.POST)
+	public ResponseEntity<User> registerUserAccount(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult,
+			HttpServletRequest request) {
+		if (bindingResult.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 
-    @Autowired
-    public PublicUserController(UserService userService, TokenService tokenService) {
-        this.userService = userService;
-        this.tokenService = tokenService;
-    }
+		User user = userService.register(userDTO);
 
-    @RequestMapping(value = "/account/registration", method = RequestMethod.POST)
-    public ResponseEntity registerUserAccount(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult, HttpServletRequest request) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
+		String appUrl = request.getRemoteHost();
+		String appPort = String.valueOf(request.getServerPort());
+		if (!appPort.trim().equals("")) {
+			appUrl = appUrl + ":" + appPort;
+		}
 
-        User user = userService.register(userDTO);
+		tokenService.createEmailConfirmToken(user, appUrl);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
 
-        String appUrl = request.getRemoteHost();
-        String appPort = String.valueOf(request.getServerPort());
-        if (!appPort.trim().equals("")) {
-            appUrl = appUrl + ":" + appPort;
-        }
+	@RequestMapping(value = "/account/registration", method = RequestMethod.GET, params = "token")
+	public ResponseEntity<?> validateEmail(@RequestParam("token") String token) {
+		tokenService.validateEmail(token);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
 
-        tokenService.createEmailConfirmToken(user, appUrl);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+	@RequestMapping(value = "/account/login", method = RequestMethod.POST)
+	public ResponseEntity<User> loginUserAccount(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult,
+			HttpServletRequest request) {
+		if (bindingResult.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 
-    @RequestMapping(value = "/account/registration", method = RequestMethod.GET, params = "token")
-    public ResponseEntity validateEmail(@RequestParam("token") String token) {
-        tokenService.validateEmail(token);
-        return new ResponseEntity(HttpStatus.OK);
-    }
+		User user = userService.login(userDTO);
 
-    @RequestMapping(value = "/account/email/reset", method = RequestMethod.GET, params = "token")
-    public ResponseEntity confirmEmailReset(@RequestParam("token") String token) {
-        tokenService.validateEmailReset(token);
-        return new ResponseEntity(HttpStatus.OK);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
 
-    }
+	@RequestMapping(value = "/account/email/reset", method = RequestMethod.GET, params = "token")
+	public ResponseEntity<?> confirmEmailReset(@RequestParam("token") String token) {
+		tokenService.validateEmailReset(token);
+		return new ResponseEntity<Object>(HttpStatus.OK);
 
-    @RequestMapping(value = "/account/password/forgot", method = RequestMethod.POST)
-    public ResponseEntity forgotPasswordRequest(@RequestBody String payload, HttpServletRequest request) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode actualObj = mapper.readTree(payload);
-        JsonNode jsonNode1 = actualObj.get("email");
-        String email = jsonNode1.textValue();
+	}
 
-        String appUrl = request.getRemoteHost();
-        String appPort = String.valueOf(request.getServerPort());
-        if (!appPort.trim().equals("")) {
-            appUrl = appUrl + ":" + appPort;
-        }
+	@RequestMapping(value = "/account/password/forgot", method = RequestMethod.POST)
+	public ResponseEntity<?> forgotPasswordRequest(@RequestBody String payload, HttpServletRequest request)
+			throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode actualObj = mapper.readTree(payload);
+		JsonNode jsonNode1 = actualObj.get("email");
+		String email = jsonNode1.textValue();
 
-        tokenService.createPasswordResetToken(email, appUrl);
-        return new ResponseEntity(HttpStatus.OK);
+		String appUrl = request.getRemoteHost();
+		String appPort = String.valueOf(request.getServerPort());
+		if (!appPort.trim().equals("")) {
+			appUrl = appUrl + ":" + appPort;
+		}
 
-    }
+		tokenService.createPasswordResetToken(email, appUrl);
+		return new ResponseEntity<Object>(HttpStatus.OK);
 
-    @RequestMapping(value = "/account/password/forgot", method = RequestMethod.PUT)
-    public ResponseEntity forgotPasswordPut(@RequestBody @Valid PasswordForgotDTO passwordForgotDTO, BindingResult bindingResult, HttpServletRequest request) {
-        if (bindingResult.hasErrors()) {
-            System.out.println("eee");
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-        tokenService.validateForgotPassword(passwordForgotDTO);
-        return new ResponseEntity(HttpStatus.OK);
-    }
+	}
 
-    @RequestMapping(value = "/account/password/forgot", method = RequestMethod.GET, params = "token")
-    public ResponseEntity forgotPasswordConfirm(@RequestParam("token") String token) {
-        tokenService.validateForgotPasswordConfirm(token);
-        return new ResponseEntity(HttpStatus.OK);
+	@RequestMapping(value = "/account/password/forgot", method = RequestMethod.PUT)
+	public ResponseEntity<?> forgotPasswordPut(@RequestBody @Valid PasswordForgotDTO passwordForgotDTO,
+			BindingResult bindingResult, HttpServletRequest request) {
+		if (bindingResult.hasErrors()) {
+			System.out.println("eee");
+			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+		}
+		tokenService.validateForgotPassword(passwordForgotDTO);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
 
-    }
+	@RequestMapping(value = "/account/password/forgot", method = RequestMethod.GET, params = "token")
+	public ResponseEntity<?> forgotPasswordConfirm(@RequestParam("token") String token) {
+		tokenService.validateForgotPasswordConfirm(token);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+
+	}
 
 }
